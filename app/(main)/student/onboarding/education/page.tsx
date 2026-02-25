@@ -18,6 +18,7 @@ const surfaceStyles = "rounded-2xl border border-border bg-card p-6 shadow-sm";
 
 interface EducationFormData {
   branch: string;
+  admissionType: string;
   enrollmentYear: number;
   passingYear: number;
   cgpa: number;
@@ -32,6 +33,7 @@ interface EducationFormData {
 
 const initialFormState: EducationFormData = {
   branch: "",
+  admissionType: "",
   enrollmentYear: 0,
   passingYear: 0,
   cgpa: 0,
@@ -58,7 +60,7 @@ const Education = () => {
     value: string | number,
   ) => {
     setFormData((prev) => {
-      if (field === "branch") {
+      if (field === "branch" || field === "admissionType") {
         return { ...prev, [field]: value as string };
       } else {
         const numValue =
@@ -76,14 +78,21 @@ const Education = () => {
     event.preventDefault();
     setStatusMessage("");
     setErrorMessage("");
-    const has12th = formData.twelfthPercent > 0 && formData.twelfthYear > 0;
+    const isRegular = formData.admissionType === "Regular";
+    const isDSE = formData.admissionType === "Direct second year";
 
-    const hasDiploma = formData.diplomaPercent > 0 && formData.diplomaYear > 0;
+    if (!formData.admissionType) {
+      setErrorMessage("Please select an admission type.");
+      return;
+    }
 
-    if (!has12th && !hasDiploma) {
-      setErrorMessage(
-        "Please provide either 12th details or Diploma details (at least one is required).",
-      );
+    if (isRegular && (formData.twelfthPercent === 0 || formData.twelfthYear === 0)) {
+      setErrorMessage("Please provide 12th details for Regular admission.");
+      return;
+    }
+
+    if (isDSE && (formData.diplomaPercent === 0 || formData.diplomaYear === 0)) {
+      setErrorMessage("Please provide Diploma details for Direct Second Year admission.");
       return;
     }
     setIsSubmitting(true);
@@ -161,6 +170,24 @@ const Education = () => {
                         {branch}
                       </SelectItem>
                     ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Admission Type</Label>
+                <Select
+                  key={formData.admissionType}
+                  value={formData.admissionType || undefined}
+                  onValueChange={(value) => updateField("admissionType", value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select admission type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Regular">Regular</SelectItem>
+                    <SelectItem value="Direct second year">
+                      Direct second year
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -242,7 +269,7 @@ const Education = () => {
             <div className="space-y-1">
               <h2 className="text-lg font-semibold">Schooling & diploma</h2>
               <p className="text-sm text-muted-foreground">
-                Provide what applies to you. Leave diploma blank if not taken.
+                Enter your secondary education details.
               </p>
             </div>
             <div className="mt-6 grid gap-5 sm:grid-cols-2">
@@ -273,65 +300,70 @@ const Education = () => {
                   }
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="twelfthPercent">12th Percentage</Label>
-                <Input
-                  id="twelfthPercent"
-                  type="number"
-                  step="0.01"
-                  min={0}
-                  placeholder="Your 12th Percentage"
-                  value={formData.twelfthPercent || ""}
-                  onChange={(event) =>
-                    updateField("twelfthPercent", event.target.value)
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="twelfthYear">12th Passing Year</Label>
-                <Input
-                  id="twelfthYear"
-                  type="number"
-                  min={0}
-                  placeholder="Your 12th Passing Year"
-                  value={formData.twelfthYear || ""}
-                  onChange={(event) =>
-                    updateField("twelfthYear", event.target.value)
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <Label htmlFor="diplomaPercent">Diploma Percentage</Label>
-                  <span className="rounded-full border border-border px-2 text-xs font-medium text-muted-foreground">
-                    Optional
-                  </span>
-                </div>
-                <Input
-                  id="diplomaPercent"
-                  type="number"
-                  step="0.01"
-                  min={0}
-                  placeholder="Your Diploma Percentage"
-                  value={formData.diplomaPercent || 0}
-                  onChange={(event) =>
-                    updateField("diplomaPercent", event.target.value)
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="diplomaYear">Diploma Passing Year</Label>
-                <Input
-                  id="diplomaYear"
-                  type="number"
-                  min={0}
-                  placeholder="Your Diploma Passing Year"
-                  value={formData.diplomaYear || ""}
-                  onChange={(event) =>
-                    updateField("diplomaYear", event.target.value)
-                  }
-                />
-              </div>
+              {formData.admissionType === "Regular" && (
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="twelfthPercent">12th Percentage</Label>
+                    <Input
+                      id="twelfthPercent"
+                      type="number"
+                      step="0.01"
+                      min={0}
+                      placeholder="Your 12th Percentage"
+                      value={formData.twelfthPercent || ""}
+                      onChange={(event) =>
+                        updateField("twelfthPercent", event.target.value)
+                      }
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="twelfthYear">12th Passing Year</Label>
+                    <Input
+                      id="twelfthYear"
+                      type="number"
+                      min={0}
+                      placeholder="Your 12th Passing Year"
+                      value={formData.twelfthYear || ""}
+                      onChange={(event) =>
+                        updateField("twelfthYear", event.target.value)
+                      }
+                    />
+                  </div>
+                </>
+              )}
+              {formData.admissionType === "Direct second year" && (
+                <>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <Label htmlFor="diplomaPercent">Diploma Percentage</Label>
+                    </div>
+                    <Input
+                      id="diplomaPercent"
+                      type="number"
+                      step="0.01"
+                      min={0}
+                      placeholder="Your Diploma Percentage"
+                      value={formData.diplomaPercent || ""}
+                      onChange={(event) =>
+                        updateField("diplomaPercent", event.target.value)
+                      }
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="diplomaYear">Diploma Passing Year</Label>
+                    <Input
+                      id="diplomaYear"
+                      type="number"
+                      min={0}
+                      placeholder="Your Diploma Passing Year"
+                      value={formData.diplomaYear || ""}
+                      onChange={(event) =>
+                        updateField("diplomaYear", event.target.value)
+                      }
+                    />
+                  </div>
+                </>
+              )}
             </div>
           </section>
 

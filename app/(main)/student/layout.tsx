@@ -28,16 +28,16 @@ const sidebarPlaceholders = [
     href: "/student/search",
   },
   {
-    label: "Profile",
-    href: "/student/profile/overview",
-  },
-  {
     label: "Postings",
     href: "/student/postings",
   },
   {
     label: "Interview Experiences",
     href: "/student/experiences",
+  },
+  {
+    label: "Profile",
+    href: "/student/profile/overview",
   },
 ];
 

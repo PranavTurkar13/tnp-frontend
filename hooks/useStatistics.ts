@@ -15,6 +15,6 @@ export function useStatistics() {
             const { data } = await axios.get("/api/my-proxy/api/v1/admin/statistics"); ``
             return data.statistics as Statistics;
         },
-        staleTime: 60 * 1000,
+        staleTime: 60 * 60 * 1000,
     });
 }
